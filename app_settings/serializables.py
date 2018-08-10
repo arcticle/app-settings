@@ -1,6 +1,6 @@
 import json, yaml
 from ast import literal_eval
-from bmixins import FileMixin, Serializable
+from mixins import FileMixin, Serializable
 
 __all__ = []
 
