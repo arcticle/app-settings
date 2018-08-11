@@ -6,12 +6,12 @@ __all__ = []
 
 class JsonFile(FileMixin):
     def __init__(self, filename, **kwargs):
-        super().__init__(filename, JSonSerializer(), **kwargs)
+        super(JsonFile, self).__init__(filename, JSonSerializer(), **kwargs)
 
 
 class YamlFile(FileMixin):
     def __init__(self, filename, default_flow_style=False, **kwargs):
-        super().__init__(filename, YamlSerializer(), **kwargs)
+        super(YamlFile, self).__init__(filename, YamlSerializer(), **kwargs)
         self._default_flow_style = default_flow_style
 
 
