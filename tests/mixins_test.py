@@ -59,13 +59,13 @@ def test_createfile_notcalled_ifexists(serializable, createfile):
 
 @mock.patch("tests.mixins_test.SerializableMock", spec=SerializableMock)
 def test_deserialize_called_onload(serializable):
-    with mock.patch("app_settings.mixins.open", create=True) as open_mock:
+    with mock.patch("builtins.open", create=True) as open_mock:
         FileMixin(__filename__, serializable.return_value).load()
         assert serializable.return_value._deserialize.called_with(open_mock)
 
 @mock.patch("tests.mixins_test.SerializableMock", spec=SerializableMock)
 def test_serialize_called_onflush(serializable):
     _dummy_str = "dummy"
-    with mock.patch("app_settings.mixins.open", create=True) as open_mock:
+    with mock.patch("builtins.open", create=True) as open_mock:
         FileMixin(__filename__, serializable.return_value).flush(_dummy_str)
         assert serializable.return_value._deserialize.called_with(_dummy_str, open_mock)
