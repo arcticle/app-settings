@@ -2,6 +2,10 @@ import pytest
 import tests.testsetup
 from app_settings.mixins import FileMixin, Serializable
 
+
+''' mock has been included in the built-in unittest library since Python 3.3
+    This block intends to support Python 2.7 builds in which mock resides
+    as a standalone package.'''
 try:
     from unittest import mock
 except:
@@ -52,3 +56,16 @@ def test_createfile_notcalled_ifexists(serializable, createfile):
     with mock.patch("app_settings.mixins.__file_exists__", return_value=True):
         _file = FileMixin(__filename__, serializable, auto_create=True)
         assert not createfile.called
+
+@mock.patch("tests.mixins_test.SerializableMock", spec=SerializableMock)
+def test_deserialize_called_onload(serializable):
+    with mock.patch("app_settings.mixins.open", create=True) as open_mock:
+        FileMixin(__filename__, serializable.return_value).load()
+        assert serializable.return_value._deserialize.called_with(open_mock)
+
+@mock.patch("tests.mixins_test.SerializableMock", spec=SerializableMock)
+def test_serialize_called_onflush(serializable):
+    _dummy_str = "dummy"
+    with mock.patch("app_settings.mixins.open", create=True) as open_mock:
+        FileMixin(__filename__, serializable.return_value).flush(_dummy_str)
+        assert serializable.return_value._deserialize.called_with(_dummy_str, open_mock)
