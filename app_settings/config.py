@@ -59,3 +59,19 @@ class Config(object):
                 config_dict = dict(self._get_config(_name))
                 _file.flush(config_dict)
 
+files = ["c:\\users\\u2r\\desktop\\test1.yaml", "c:\\users\\u2r\\desktop\\test2.yaml"]
+
+c = Config(files, auto_create=True)
+
+c.test1.count=7
+c.test1.path="my custom path"
+c.test1["datasets"]={}
+c.test1["datasets"]["train"]="train dataset is there"
+
+
+c.test2.count=8
+c.test2.path="my very custom path"
+
+c.save("test1")
+c.save("test2")
+

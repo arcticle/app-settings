@@ -1,6 +1,16 @@
 import os, six, abc
 
 
+def __file_exists__(filename):
+    return os.path.isfile(filename)
+
+def __create_file__(filename):
+    _dir = os.path.dirname(filename)
+    if not os.path.exists(_dir):
+        os.makedirs(_dir)
+    with open(filename, "w"):
+        pass
+
 class FileMixin(object):
     def __init__(self, filename, serializer, auto_create=False):
         assert isinstance(serializer, Serializable)
@@ -24,14 +34,8 @@ class FileMixin(object):
             raise Exception("An error occurred while saving file.")
 
     def _ensure_file(self, filename):
-        if os.path.isfile(filename):
-            pass
-        else:
-            _dir = os.path.dirname(filename)
-            if not os.path.exists(_dir):
-                os.makedirs(_dir)
-            with open(filename, "w"):
-                pass
+        if not __file_exists__(filename):
+            __create_file__(filename)
 
 @six.add_metaclass(abc.ABCMeta)
 class Serializable(object):
