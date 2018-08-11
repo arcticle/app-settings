@@ -1,7 +1,11 @@
 import pytest
-from unittest import mock
 import tests.testsetup
 from app_settings.mixins import FileMixin, Serializable
+
+try:
+    from unittest import mock
+except:
+    import mock
 
 __filename__ = "usr/test/filename.json"
 
