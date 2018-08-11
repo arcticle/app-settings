@@ -1,9 +1,6 @@
 import pytest
 from unittest import mock
-import sys
-
-sys.path.append("D:\\Drive\\AILabs\\packages\\app_settings\\app_settings")
-
+import tests.testsetup
 from app_settings.mixins import FileMixin, Serializable
 
 __filename__ = "usr/test/filename.json"
