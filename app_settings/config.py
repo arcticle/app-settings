@@ -28,13 +28,6 @@ def _resolve_file(filename, resolve_file=None):
         type = resolve_file(filename)
     return (name, type)
 
-def _parse_filename(filename):
-    _dir, _file = os.path.split(filename)
-    _name, _ext = os.path.splitext(_file)
-    _type = _ext[1:]
-    if not _type:
-        return "json"
-    return (_name, _type, _dir)
 
 class Config(object):
     def __init__(self, files=None, dir=None, resolve_type=None, filter=None, **kwargs):
