@@ -11,7 +11,7 @@ class JsonFile(FileMixin):
 
 class YamlFile(FileMixin):
     def __init__(self, filename, default_flow_style=False, **kwargs):
-        super(YamlFile, self).__init__(filename, YamlSerializer(), **kwargs)
+        super(YamlFile, self).__init__(filename, YamlSerializer(default_flow_style), **kwargs)
         self._default_flow_style = default_flow_style
 
 
@@ -25,6 +25,9 @@ class JSonSerializer(Serializable):
 
 
 class YamlSerializer(Serializable):
+    def __init__(self, default_flow_style):
+        self._default_flow_style = default_flow_style
+
     def _deserialize(self, fs):
         s = yaml.load(fs.read())
         if not s:
