@@ -1,6 +1,6 @@
 import json, yaml
 from ast import literal_eval
-from mixins import FileMixin, Serializable
+from app_settings.mixins import FileMixin, Serializable
 
 __all__ = []
 
@@ -8,11 +8,21 @@ class JsonFile(FileMixin):
     def __init__(self, filename, **kwargs):
         super(JsonFile, self).__init__(filename, JSonSerializer(), **kwargs)
 
+    def load(self):
+        if self.auto_create:
+            return super(JsonFile, self).load()
+        return {}
+
 
 class YamlFile(FileMixin):
     def __init__(self, filename, default_flow_style=False, **kwargs):
         super(YamlFile, self).__init__(filename, YamlSerializer(default_flow_style), **kwargs)
         self._default_flow_style = default_flow_style
+    
+    def load(self):
+        if self.auto_create:
+            return super(YamlFile, self).load()
+        return {}
 
 
 class JSonSerializer(Serializable):

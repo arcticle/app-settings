@@ -1,8 +1,8 @@
 import sys, os
 
 _dir = os.path.dirname(__file__)
-source_dir = os.path.join(_dir,"..","app_settings")
-sys.path.append(source_dir)
+source_dir = os.path.join(_dir,os.pardir,"app_settings")
+sys.path.append(os.path.abspath(source_dir))
 
 ''' mock has been included in the built-in unittest library since Python 3.3
     This block intends to support Python 2.7 builds in which mock resides

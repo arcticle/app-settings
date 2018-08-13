@@ -17,6 +17,7 @@ class FileMixin(object):
         if auto_create:
             self._ensure_file(filename)
         self.filename = filename
+        self.auto_create = auto_create
         self._serializer = serializer
 
     def load(self):

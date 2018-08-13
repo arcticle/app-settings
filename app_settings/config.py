@@ -1,7 +1,7 @@
 import os, collections
-from utils import filename_parser, file_search, product
 from attrdict import AttrDict
-from serializables import JsonFile, YamlFile
+from app_settings.utils import filename_parser, file_search, product
+from app_settings.serializables import JsonFile, YamlFile
 
 __all__ = ["Config"]
 
@@ -34,6 +34,7 @@ class Config(object):
         self._validate(files, dir, resolve_type)
         self._resolve_type = resolve_type
         self._create_files(files, dir, filter, **kwargs)
+        self._load_files()
 
     def save(self, config_name):
         if config_name in self._files:
@@ -49,40 +50,40 @@ class Config(object):
 
     def _create_files(self, files, dir, filter, **kwargs):
         self._files = {}
-        specs = self._get_file_specs(files, dir, filter)
+        specs = self._get_file_props(files, dir, filter)
         for f, type in specs:
             self._files[f[0]] = FileFactory.create_file(type, f[1], **kwargs)
-        self._load_files()
 
-    def _get_file_specs(self, files, dir, filter):
-        types=[]
-        if files:
-            if not isinstance(files, collections.Iterable):
-                name, type = _resolve_file(files, self._resolve_type)
-                if type:
-                    files = [(name, files)]
-                    types.append(type)
-            else:
-                for idx, f in enumerate(list(files)):
-                    name, type = _resolve_file(f, self._resolve_type)
-                    if type:
-                        files[idx] = (name, f)
-                        types.append(type)
-                    else:
-                        files.pop(idx)
-        elif dir:
-            files = file_search(dir, filter, recursive=True)
-            _files = []
-            for idx, f in enumerate(list(files)):
-                name, type = _resolve_file(f, self._resolve_type)
-                if type:
-                    _files.append((name, f))
-                    types.append(type)
-            files = _files
-            del _files
-        else:
-            return None
+    def _get_file_props(self, files, dir, filter):
+        file_props = self._resolve_props_from_file(files)
+        if file_props: 
+            return file_props
+        file_props = self._resolve_props_from_dir(dir, filter)
+        if file_props:
+            return file_props
+        return []
+
+    def _resolve_props_from_file(self, files):
+        if not files: return False
+        if not isinstance(files, collections.Iterable):
+            files = [files]
+        files, types = self._resolve_props(files)
         return zip(files, types)
+        
+    def _resolve_props_from_dir(self, dir, filter):
+        if not dir : return None
+        files = file_search(dir, filter, recursive=True)
+        files, types = self._resolve_props(files) 
+        return zip(files, types)
+
+    def _resolve_props(self, files):
+        _files, _types = [], []
+        for f in files:
+            name, type = _resolve_file(f, self._resolve_type)
+            if not type: continue
+            _files.append((name, f))
+            _types.append(type)
+        return _files, _types
 
     def _load_files(self):
         for _name, _file in self._files.items():
@@ -99,6 +100,8 @@ class Config(object):
         self._files[name].flush(config_dict)
 
     def _validate(self, files, dir, resolve_type):
+        if not files and not dir:
+            raise ValueError("No files or search directory provided.")
         if files:
             if isinstance(files, collections.Iterable):
                 for f in files:
@@ -106,7 +109,6 @@ class Config(object):
             else:
                 assert isinstance(files, str)
         if dir:
-            assert isinstance(dir, str) 
-        if not files and not dir:
-            raise ValueError("No files or search directory provided.")
+            assert isinstance(dir, str)
+            assert os.path.isdir(dir)
 

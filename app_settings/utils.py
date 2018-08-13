@@ -1,5 +1,6 @@
 import os
 
+__all__ = []
 
 def filename_parser(filename, default=None):
     _dir, _file = os.path.split(filename)
