@@ -1,8 +1,6 @@
 import os
 
-__all__ = []
-
-def filename_parser(filename, default=None):
+def filename_parser(filename):
     _dir, _file = os.path.split(filename)
     _name, _ext = os.path.splitext(_file)
     _type = _ext[1:]

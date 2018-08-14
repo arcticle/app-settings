@@ -1,39 +1,15 @@
-import os, collections
+import os, re, collections
 from attrdict import AttrDict
-from app_settings.utils import filename_parser, file_search, product
-from app_settings.serializables import JsonFile, YamlFile
+from app_settings import file_search
+from app_settings import FileFactory
 
 __all__ = ["Config"]
 
 
-class FileFactory(object):
-    _supported_file_types = {
-        "json" : JsonFile,
-        "yaml" : YamlFile
-    }
-    
-    @staticmethod
-    def create_file(type, filename, **kwargs):
-        if not type in FileFactory._supported_file_types:
-            raise Exception("Unsupported file type has been requested")
-        return FileFactory._supported_file_types[type](filename, **kwargs)
-
-
-def _resolve_file(filename, resolve_file=None):
-    type=None
-    name, ext, _ = filename_parser(filename)
-    if ext in FileFactory._supported_file_types:
-        type = ext
-    elif resolve_file:
-        type = resolve_file(filename)
-    return (name, type)
-
-
 class Config(object):
-    def __init__(self, files=None, dir=None, resolve_type=None, filter=None, **kwargs):
-        self._validate(files, dir, resolve_type)
-        self._resolve_type = resolve_type
-        self._create_files(files, dir, filter, **kwargs)
+    def __init__(self, files=None, dir=None, default=None, filter=None, **kwargs):
+        self._validate(files, dir, default)
+        self._create_files(files, dir, filter, default, **kwargs)
         self._load_files()
 
     def save(self, config_name):
@@ -48,42 +24,22 @@ class Config(object):
     def files(self):
         return list(self._files.keys())
 
-    def _create_files(self, files, dir, filter, **kwargs):
+    def _create_files(self, files, dir, filter, default, **kwargs):
         self._files = {}
-        specs = self._get_file_props(files, dir, filter)
-        for f, type in specs:
-            self._files[f[0]] = FileFactory.create_file(type, f[1], **kwargs)
-
-    def _get_file_props(self, files, dir, filter):
-        file_props = self._resolve_props_from_file(files)
-        if file_props: 
-            return file_props
-        file_props = self._resolve_props_from_dir(dir, filter)
-        if file_props:
-            return file_props
-        return []
-
-    def _resolve_props_from_file(self, files):
-        if not files: return False
-        if not isinstance(files, collections.Iterable):
-            files = [files]
-        files, types = self._resolve_props(files)
-        return zip(files, types)
-        
-    def _resolve_props_from_dir(self, dir, filter):
-        if not dir : return None
-        files = file_search(dir, filter, recursive=True)
-        files, types = self._resolve_props(files) 
-        return zip(files, types)
-
-    def _resolve_props(self, files):
-        _files, _types = [], []
+        files = self._get_files(files, dir, filter)
         for f in files:
-            name, type = _resolve_file(f, self._resolve_type)
-            if not type: continue
-            _files.append((name, f))
-            _types.append(type)
-        return _files, _types
+            _file = FileFactory.create(f, default, **kwargs)
+            _name = self._transform_invalid_name(_file.name)
+            self._files[_name] = _file
+
+    def _get_files(self, files, dir, filter):
+        if isinstance(files, str):
+            return [files]
+        if isinstance(files, collections.Iterable):
+            return files
+        if dir:
+            return file_search(dir, filter, recursive=True)
+        return []
 
     def _load_files(self):
         for _name, _file in self._files.items():
@@ -99,6 +55,9 @@ class Config(object):
         config_dict = dict(self._get_config(name))
         self._files[name].flush(config_dict)
 
+    def _transform_invalid_name(self, filename):
+        return re.sub(r"[^A-Za-z]", "_", filename)
+
     def _validate(self, files, dir, resolve_type):
         if not files and not dir:
             raise ValueError("No files or search directory provided.")
@@ -111,4 +70,3 @@ class Config(object):
         if dir:
             assert isinstance(dir, str)
             assert os.path.isdir(dir)
-
