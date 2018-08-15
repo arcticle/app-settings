@@ -12,6 +12,7 @@ python:
 install:
   - pip install -r requirements.txt
   - pip install mock
+  - pip install pytest
 # command to run tests
 script:
   - pytest
