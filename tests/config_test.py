@@ -44,7 +44,7 @@ def test_getfiles_single_file_in_list():
 
 def test_getfiles_some_files():
     cfg = Config(["foo.json", "baz.yaml"], auto_create=False)
-    assert cfg.files == ["foo","baz"]
+    assert sorted(cfg.files) == ["baz","foo"]
 
 def test_getfiles_duplicate_names():
     cfg = Config(["foo.json", "foo.yaml"], auto_create=False)
