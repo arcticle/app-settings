@@ -89,3 +89,8 @@ def test_set_attribute_more_complex_type():
     cfg = Config(["foo.json"], auto_create=False)
     cfg.foo.bar = {"baz":{"eggs":{"price":7, "currency":"pounds"}}}
     assert "{} {}".format(cfg.foo.bar.baz.eggs.price, cfg.foo.bar.baz.eggs.currency) == "7 pounds"
+
+def test_get_config_attribute_single_file():
+    cfg = Config(["foo.json"], auto_create=False)
+    cfg.foo.bar = {"baz":{"eggs":{"price":7, "currency":"pounds"}}}    
+    assert not cfg["foo"]

@@ -5,7 +5,7 @@ with open("README.md", "r") as fh:
 
 setuptools.setup(
     name="app-settings",
-    version="1.0.0",
+    version="1.0.1",
     author="Ugur UKER [Arcticle Intelligence Labs]",
     author_email="uguruker@gmail.com",
     description="An interface providing you the ability to easily manage application context settings",

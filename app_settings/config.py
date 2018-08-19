@@ -24,6 +24,9 @@ class Config(object):
     def files(self):
         return list(self._files.keys())
 
+    def __getitem__(self, key):
+        return self._get_config(key)
+
     def _create_files(self, files, dir, filter, default, **kwargs):
         self._files = {}
         files = self._get_files(files, dir, filter)
