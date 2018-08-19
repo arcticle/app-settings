@@ -93,4 +93,4 @@ def test_set_attribute_more_complex_type():
 def test_get_config_attribute_single_file():
     cfg = Config(["foo.json"], auto_create=False)
     cfg.foo.bar = {"baz":{"eggs":{"price":7, "currency":"pounds"}}}    
-    assert not cfg["foo"]
+    assert cfg["foo"]
